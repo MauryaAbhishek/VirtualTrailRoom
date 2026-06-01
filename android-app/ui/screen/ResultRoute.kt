@@ -75,8 +75,10 @@ fun ResultRoute(
                     },
                     onError = { state ->
                         isImageLoading = false
-                        imageErrorMessage = state.result.throwable.message
-                            ?: "Generated image could not be loaded."
+                        val reason = state.result.throwable.message
+                            ?: state.result.throwable::class.simpleName
+                            ?: "Unknown image loading error"
+                        imageErrorMessage = "Generated image could not be loaded. $reason"
                     }
                 )
                 if (isImageLoading) {
