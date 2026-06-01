@@ -72,6 +72,7 @@ class StorageServiceTest(unittest.TestCase):
             cors_allowed_origins=("*",),
             allowed_image_mime_types=frozenset({"image/jpeg", "image/png", "image/webp"}),
             ai_provider="local",
+            public_base_url=None,
             runpod_endpoint_id=None,
             runpod_api_key=None,
             runpod_timeout_seconds=180,

@@ -18,6 +18,10 @@ class StorageService:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
 
+    @property
+    def settings(self) -> Settings:
+        return self._settings
+
     async def save_image_upload(
         self,
         file: UploadFile,

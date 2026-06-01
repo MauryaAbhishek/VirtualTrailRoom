@@ -25,6 +25,8 @@ class RunPodTryOnEngine(TryOnEngine):
         user_image_path: Path,
         clothing_image_path: Path,
         output_image_path: Path,
+        user_image_url: str | None = None,
+        clothing_image_url: str | None = None,
     ) -> None:
         payload = {
             "input": {

@@ -21,6 +21,8 @@ services:
         value: "*"
       - key: VTR_AI_PROVIDER
         value: local
+      - key: VTR_PUBLIC_BASE_URL
+        value: https://virtual-trial-room-backend-xz7l.onrender.com
       - key: VTR_RUNPOD_ENDPOINT_ID
         sync: false
       - key: VTR_RUNPOD_API_KEY

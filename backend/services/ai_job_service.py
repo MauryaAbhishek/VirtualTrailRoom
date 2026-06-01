@@ -40,6 +40,8 @@ class AiJobService:
                 user_image_path=user_image.storage_path,
                 clothing_image_path=clothing_image.storage_path,
                 output_image_path=output_path,
+                user_image_url=self._image_url(user_image.id),
+                clothing_image_url=self._image_url(clothing_image.id),
             )
             output_record = self._storage_service.create_output_record(output_path)
             await self._repository.insert_image(output_record)
@@ -56,3 +58,12 @@ class AiJobService:
                 error_message=str(exc) or exc.__class__.__name__,
                 updated_at=utc_now(),
             )
+
+    def _image_url(self, image_id: UUID) -> str | None:
+        settings = self._storage_service.settings
+        if not settings.public_base_url:
+            return None
+        return (
+            settings.public_base_url.rstrip("/")
+            + f"/api/v1/uploads/images/{image_id}/content"
+        )
