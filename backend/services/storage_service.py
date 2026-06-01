@@ -102,7 +102,7 @@ class StorageService:
                 image.verify()
             with Image.open(path) as image:
                 width, height = image.size
-        except (UnidentifiedImageError, OSError) as exc:
+        except (SyntaxError, UnidentifiedImageError, OSError) as exc:
             path.unlink(missing_ok=True)
             raise bad_request("Uploaded file is not a readable image.") from exc
 

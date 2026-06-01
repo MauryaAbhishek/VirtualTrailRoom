@@ -38,6 +38,19 @@ class StorageServiceTest(unittest.TestCase):
             with self.assertRaises(Exception):
                 asyncio.run(service.save_image_upload(upload, ImageKind.USER))
 
+    def test_save_image_upload_rejects_malformed_image(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings = self._settings(Path(temp_dir))
+            service = StorageService(settings)
+            upload = UploadFile(
+                filename="broken.png",
+                file=BytesIO(b"not a valid png"),
+                headers={"content-type": "image/png"},
+            )
+
+            with self.assertRaises(Exception):
+                asyncio.run(service.save_image_upload(upload, ImageKind.USER))
+
     @staticmethod
     def _upload_file(filename: str, content_type: str) -> UploadFile:
         image = Image.new("RGB", (64, 96), color=(30, 80, 160))
@@ -63,4 +76,3 @@ class StorageServiceTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
