@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 @HiltViewModel
 class PreviewViewModel @Inject constructor(
@@ -28,35 +29,54 @@ class PreviewViewModel @Inject constructor(
     fun submitTryOn(photoId: String, clothingId: String) {
         if (_uiState.value.isLoading) return
 
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                statusMessage = "Preparing images...",
+                errorMessage = null
+            )
+        }
         viewModelScope.launch {
             runCatching {
-                withContext(dispatchers.io) {
-                    val userPhoto = requireNotNull(photoFileManager.findPhotoById(photoId)) {
-                        "Captured image was not found. Please capture or import again."
+                withTimeout(SUBMIT_TIMEOUT_MS) {
+                    withContext(dispatchers.io) {
+                        _uiState.update { it.copy(statusMessage = "Reading captured photo...") }
+                        val userPhoto = requireNotNull(photoFileManager.findPhotoById(photoId)) {
+                            "Captured image was not found. Please capture or import again."
+                        }
+                        _uiState.update { it.copy(statusMessage = "Preparing garment image...") }
+                        val clothingUri = clothingAssetManager.getOrCreateClothingUri(clothingId)
+                        _uiState.update { it.copy(statusMessage = "Uploading captured photo...") }
+                        val userUpload = remoteImageDataSource.uploadLocalImage(
+                            localUri = userPhoto.localUri,
+                            kind = RemoteImageKind.USER
+                        )
+                        _uiState.update { it.copy(statusMessage = "Uploading garment image...") }
+                        val clothingUpload = remoteImageDataSource.uploadLocalImage(
+                            localUri = clothingUri,
+                            kind = RemoteImageKind.CLOTHING
+                        )
+                        _uiState.update { it.copy(statusMessage = "Starting try-on generation...") }
+                        remoteImageDataSource.createTryOnJob(
+                            userImageId = userUpload.id,
+                            clothingImageId = clothingUpload.id
+                        )
                     }
-                    val clothingUri = clothingAssetManager.getOrCreateClothingUri(clothingId)
-                    val userUpload = remoteImageDataSource.uploadLocalImage(
-                        localUri = userPhoto.localUri,
-                        kind = RemoteImageKind.USER
-                    )
-                    val clothingUpload = remoteImageDataSource.uploadLocalImage(
-                        localUri = clothingUri,
-                        kind = RemoteImageKind.CLOTHING
-                    )
-                    remoteImageDataSource.createTryOnJob(
-                        userImageId = userUpload.id,
-                        clothingImageId = clothingUpload.id
-                    )
                 }
             }.onSuccess { job ->
                 _uiState.update {
-                    it.copy(isLoading = false, jobId = job.id, errorMessage = null)
+                    it.copy(
+                        isLoading = false,
+                        jobId = job.id,
+                        statusMessage = null,
+                        errorMessage = null
+                    )
                 }
             }.onFailure { throwable ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        statusMessage = null,
                         errorMessage = throwable.message ?: "Unable to start try-on generation."
                     )
                 }
@@ -67,5 +87,8 @@ class PreviewViewModel @Inject constructor(
     fun consumeJobNavigation() {
         _uiState.update { it.copy(jobId = null) }
     }
-}
 
+    private companion object {
+        const val SUBMIT_TIMEOUT_MS = 120_000L
+    }
+}

@@ -43,7 +43,9 @@ fun ProcessingRoute(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (uiState.isLoading) {
-                LoadingState(message = "Processing request $requestId")
+                LoadingState(
+                    message = uiState.statusMessage ?: "Processing request $requestId"
+                )
             }
             if (uiState.errorMessage != null) {
                 ErrorState(

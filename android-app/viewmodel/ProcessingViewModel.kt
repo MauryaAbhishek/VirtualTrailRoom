@@ -23,9 +23,16 @@ class ProcessingViewModel @Inject constructor(
 
     fun pollJob(jobId: String) {
         if (_uiState.value.jobId == jobId && _uiState.value.outputImageId != null) return
-        _uiState.update { it.copy(isLoading = true, jobId = jobId, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                jobId = jobId,
+                statusMessage = "Waiting for backend processing...",
+                errorMessage = null
+            )
+        }
         viewModelScope.launch {
-            repeat(MAX_ATTEMPTS) {
+            repeat(MAX_ATTEMPTS) { attempt ->
                 val result = runCatching {
                     withContext(dispatchers.io) {
                         remoteImageDataSource.getTryOnJob(jobId)
@@ -42,6 +49,7 @@ class ProcessingViewModel @Inject constructor(
                                     isLoading = false,
                                     outputImageId = outputId,
                                     outputImageUrl = remoteImageDataSource.imageContentUrl(outputId),
+                                    statusMessage = null,
                                     errorMessage = null
                                 )
                             }
@@ -51,6 +59,7 @@ class ProcessingViewModel @Inject constructor(
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
+                                    statusMessage = null,
                                     errorMessage = job.errorMessage ?: "Try-on generation failed."
                                 )
                             }
@@ -61,15 +70,23 @@ class ProcessingViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            statusMessage = null,
                             errorMessage = throwable.message ?: "Unable to check try-on status."
                         )
                     }
                     return@launch
                 }
+                _uiState.update {
+                    it.copy(statusMessage = "Generating try-on image... ${attempt + 1}/$MAX_ATTEMPTS")
+                }
                 delay(POLL_INTERVAL_MS)
             }
             _uiState.update {
-                it.copy(isLoading = false, errorMessage = "Try-on generation timed out.")
+                it.copy(
+                    isLoading = false,
+                    statusMessage = null,
+                    errorMessage = "Try-on generation timed out. Please retry."
+                )
             }
         }
     }

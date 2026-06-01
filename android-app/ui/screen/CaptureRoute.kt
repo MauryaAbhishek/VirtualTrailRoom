@@ -267,23 +267,27 @@ private fun CameraCaptureContent(
         IconButton(
             onClick = {
                 if (!isCapturing && !isImporting) {
-                    val (file, outputOptions) = onPrepareCapture()
-                    onCaptureStarted()
-                    imageCapture.takePicture(
-                        outputOptions,
-                        cameraExecutor,
-                        object : ImageCapture.OnImageSavedCallback {
-                            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                onCaptureSuccess(file)
-                            }
+                    runCatching {
+                        val (file, outputOptions) = onPrepareCapture()
+                        onCaptureStarted()
+                        imageCapture.takePicture(
+                            outputOptions,
+                            cameraExecutor,
+                            object : ImageCapture.OnImageSavedCallback {
+                                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                    onCaptureSuccess(file)
+                                }
 
-                            override fun onError(exception: ImageCaptureException) {
-                                onCaptureFailed(
-                                    exception.message ?: "Unable to capture image."
-                                )
+                                override fun onError(exception: ImageCaptureException) {
+                                    onCaptureFailed(
+                                        exception.message ?: "Unable to capture image."
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }.onFailure { throwable ->
+                        onCaptureFailed(throwable.message ?: "Unable to start camera capture.")
+                    }
                 }
             },
             modifier = Modifier

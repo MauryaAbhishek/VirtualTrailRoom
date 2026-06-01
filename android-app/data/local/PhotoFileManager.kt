@@ -1,6 +1,7 @@
 package com.virtualtrialroom.app.data.local
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.webkit.MimeTypeMap
 import android.net.Uri
@@ -56,6 +57,12 @@ class PhotoFileManager @Inject constructor(
     }
 
     fun toUserPhoto(file: File, source: ImageSource): UserPhoto {
+        if (source == ImageSource.CAMERA) {
+            validateReadableImageFile(file)
+            normalizeCameraImage(file)
+        } else {
+            validateImageFile(file)
+        }
         val dimensions = readImageDimensions(file)
         return UserPhoto(
             id = UUID.nameUUIDFromBytes(file.absolutePath.toByteArray()).toString(),
@@ -94,13 +101,54 @@ class PhotoFileManager @Inject constructor(
     }
 
     private fun validateImageFile(file: File) {
-        val dimensions = readImageDimensions(file)
+        val dimensions = validateReadableImageFile(file)
         require(file.length() in 1..MAX_IMAGE_BYTES) {
             "Image must be smaller than 12 MB."
+        }
+    }
+
+    private fun validateReadableImageFile(file: File): ImageDimensions {
+        val dimensions = readImageDimensions(file)
+        require(file.length() > 0L) {
+            "Image file is empty."
         }
         require(dimensions.width > 0 && dimensions.height > 0) {
             "Selected file is not a readable image."
         }
+        return dimensions
+    }
+
+    private fun normalizeCameraImage(file: File) {
+        val dimensions = readImageDimensions(file)
+        if (dimensions.width <= MAX_CAMERA_EDGE && dimensions.height <= MAX_CAMERA_EDGE) {
+            return
+        }
+
+        val sampleSize = calculateSampleSize(dimensions.width, dimensions.height, MAX_CAMERA_EDGE)
+        val bitmap = BitmapFactory.decodeFile(
+            file.absolutePath,
+            BitmapFactory.Options().apply { inSampleSize = sampleSize }
+        ) ?: throw IOException("Captured image could not be processed.")
+
+        file.outputStream().use { outputStream ->
+            if (!bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, outputStream)) {
+                throw IOException("Captured image could not be saved.")
+            }
+        }
+        bitmap.recycle()
+        validateImageFile(file)
+    }
+
+    private fun calculateSampleSize(width: Int, height: Int, maxEdge: Int): Int {
+        var sampleSize = 1
+        var sampledWidth = width
+        var sampledHeight = height
+        while (sampledWidth > maxEdge || sampledHeight > maxEdge) {
+            sampleSize *= 2
+            sampledWidth = width / sampleSize
+            sampledHeight = height / sampleSize
+        }
+        return sampleSize.coerceAtLeast(1)
     }
 
     private fun isSupportedImageMimeType(mimeType: String?): Boolean {
@@ -125,6 +173,8 @@ class PhotoFileManager @Inject constructor(
         const val IMPORT_DIRECTORY = "imported_photos"
         const val DEFAULT_IMAGE_EXTENSION = "jpg"
         const val MAX_IMAGE_BYTES = 12L * 1024L * 1024L
+        const val MAX_CAMERA_EDGE = 1600
+        const val JPEG_QUALITY = 88
         val SUPPORTED_IMAGE_MIME_TYPES = setOf(
             "image/jpeg",
             "image/png",

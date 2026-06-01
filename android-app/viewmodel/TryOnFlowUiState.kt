@@ -5,6 +5,6 @@ data class TryOnFlowUiState(
     val jobId: String? = null,
     val outputImageId: String? = null,
     val outputImageUrl: String? = null,
+    val statusMessage: String? = null,
     val errorMessage: String? = null
 )
-

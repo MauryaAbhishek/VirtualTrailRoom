@@ -57,16 +57,26 @@ class CameraViewModel @Inject constructor(
     }
 
     fun onCaptureSuccess(file: File) {
-        val photo = photoFileManager.toUserPhoto(
-            file = file,
-            source = ImageSource.CAMERA
-        )
-        _uiState.update {
-            it.copy(
-                isCapturing = false,
-                capturedPhoto = photo,
-                errorMessage = null
+        runCatching {
+            photoFileManager.toUserPhoto(
+                file = file,
+                source = ImageSource.CAMERA
             )
+        }.onSuccess { photo ->
+            _uiState.update {
+                it.copy(
+                    isCapturing = false,
+                    capturedPhoto = photo,
+                    errorMessage = null
+                )
+            }
+        }.onFailure { throwable ->
+            _uiState.update {
+                it.copy(
+                    isCapturing = false,
+                    errorMessage = throwable.message ?: "Captured image could not be processed."
+                )
+            }
         }
     }
 

@@ -48,7 +48,9 @@ fun PreviewRoute(
                 icon = Icons.Filled.ImageSearch
             )
             if (uiState.isLoading) {
-                LoadingState(message = "Uploading images and creating try-on job.")
+                LoadingState(
+                    message = uiState.statusMessage ?: "Uploading images and creating try-on job."
+                )
             }
             if (uiState.errorMessage != null) {
                 ErrorState(
