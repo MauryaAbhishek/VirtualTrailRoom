@@ -40,15 +40,63 @@ VTR_CORS_ALLOWED_ORIGINS=https://your-app-domain.example
 GET /health
 ```
 
+## Serverless Photoreal Try-On Integration
+
+The production backend can call a RunPod Serverless endpoint by setting:
+
+```text
+VTR_AI_PROVIDER=runpod
+VTR_RUNPOD_ENDPOINT_ID=your_runpod_endpoint_id
+VTR_RUNPOD_API_KEY=your_runpod_api_key
+VTR_RUNPOD_TIMEOUT_SECONDS=180
+```
+
+The RunPod worker must accept this JSON payload:
+
+```json
+{
+  "input": {
+    "person_image_base64": "base64 encoded full-body user photo",
+    "garment_image_base64": "base64 encoded saree/clothing reference photo",
+    "prompt": "photoreal virtual try-on instruction",
+    "output_format": "jpeg"
+  }
+}
+```
+
+The worker should return one of these output shapes:
+
+```json
+{
+  "output": {
+    "image_base64": "base64 encoded generated try-on image"
+  }
+}
+```
+
+or:
+
+```json
+{
+  "output": "base64 encoded generated try-on image"
+}
+```
+
+The prompt sent by the backend is:
+
+```text
+Using the provided woman's full-body photo and the provided saree or clothing reference image, generate a realistic virtual try-on image. The woman must be wearing the exact garment from the reference image. Preserve her face, hairstyle, body shape, pose, skin tone, and all facial details. Ensure the garment draping looks natural and realistic, with accurate fabric texture, folds, lighting, and shadows. The final output must appear like a real photograph.
+```
+
 ## HR-VITON Integration Point
 
-Add the GPU implementation as a new class implementing:
+For a custom in-process GPU service, add an implementation of:
 
 ```python
 backend.ai.engine.TryOnEngine
 ```
 
-Then update `backend/api/dependencies.py` to return that engine instead of `LocalTryOnEngine`.
+Then set `VTR_AI_PROVIDER` to route to that engine in `backend/api/dependencies.py`.
 
 ## Persistent Files
 
@@ -59,4 +107,3 @@ Use a persistent RunPod volume mounted at `/data` so these paths survive restart
 /data/outputs
 /data/virtual_trial_room.sqlite3
 ```
-

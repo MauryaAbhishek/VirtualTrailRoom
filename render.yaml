@@ -19,3 +19,11 @@ services:
         value: "12"
       - key: VTR_CORS_ALLOWED_ORIGINS
         value: "*"
+      - key: VTR_AI_PROVIDER
+        value: local
+      - key: VTR_RUNPOD_ENDPOINT_ID
+        sync: false
+      - key: VTR_RUNPOD_API_KEY
+        sync: false
+      - key: VTR_RUNPOD_TIMEOUT_SECONDS
+        value: "180"

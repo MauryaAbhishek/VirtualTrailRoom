@@ -95,9 +95,12 @@ class TryOnPipelineTest(unittest.TestCase):
             max_upload_bytes=12 * 1024 * 1024,
             cors_allowed_origins=("*",),
             allowed_image_mime_types=frozenset({"image/jpeg", "image/png", "image/webp"}),
+            ai_provider="local",
+            runpod_endpoint_id=None,
+            runpod_api_key=None,
+            runpod_timeout_seconds=180,
         )
 
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,7 +1,9 @@
 from functools import lru_cache
 
 from backend.app.config import Settings, get_settings
+from backend.ai.engine import TryOnEngine
 from backend.ai.local_engine import LocalTryOnEngine
+from backend.ai.runpod_engine import RunPodTryOnEngine
 from backend.services.metadata_repository import MetadataRepository
 from backend.services.ai_job_service import AiJobService
 from backend.services.storage_service import StorageService
@@ -27,13 +29,18 @@ def try_on_service_dependency() -> TryOnService:
 
 
 @lru_cache
-def local_try_on_engine_dependency() -> LocalTryOnEngine:
-    return LocalTryOnEngine()
+def try_on_engine_dependency() -> TryOnEngine:
+    settings = settings_dependency()
+    if settings.ai_provider == "runpod":
+        return RunPodTryOnEngine(settings)
+    if settings.ai_provider == "local":
+        return LocalTryOnEngine()
+    raise ValueError(f"Unsupported AI provider: {settings.ai_provider}")
 
 
 def ai_job_service_dependency() -> AiJobService:
     return AiJobService(
         repository=repository_dependency(),
         storage_service=storage_service_dependency(),
-        try_on_engine=local_try_on_engine_dependency(),
+        try_on_engine=try_on_engine_dependency(),
     )

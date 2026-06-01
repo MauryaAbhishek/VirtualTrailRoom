@@ -14,6 +14,10 @@ class Settings:
     max_upload_bytes: int
     cors_allowed_origins: tuple[str, ...]
     allowed_image_mime_types: frozenset[str]
+    ai_provider: str
+    runpod_endpoint_id: str | None
+    runpod_api_key: str | None
+    runpod_timeout_seconds: float
 
 
 def get_settings() -> Settings:
@@ -38,4 +42,8 @@ def get_settings() -> Settings:
         max_upload_bytes=max_upload_mb * 1024 * 1024,
         cors_allowed_origins=cors_allowed_origins,
         allowed_image_mime_types=frozenset({"image/jpeg", "image/png", "image/webp"}),
+        ai_provider=os.getenv("VTR_AI_PROVIDER", "local").strip().lower(),
+        runpod_endpoint_id=os.getenv("VTR_RUNPOD_ENDPOINT_ID"),
+        runpod_api_key=os.getenv("VTR_RUNPOD_API_KEY"),
+        runpod_timeout_seconds=float(os.getenv("VTR_RUNPOD_TIMEOUT_SECONDS", "180")),
     )
