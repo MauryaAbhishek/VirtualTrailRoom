@@ -63,8 +63,14 @@ class LocalTryOnEngine(TryOnEngine):
     @staticmethod
     def _fit_garment_to_body(garment: Image.Image, user_size: tuple[int, int]) -> Image.Image:
         user_width, user_height = user_size
-        target_width = max(1, int(user_width * 0.58))
-        target_height = max(1, int(user_height * 0.46))
+        garment_ratio = garment.height / max(1, garment.width)
+        is_full_body_garment = garment_ratio >= 1.12
+        if is_full_body_garment:
+            target_width = max(1, int(user_width * 0.86))
+            target_height = max(1, int(user_height * 0.82))
+        else:
+            target_width = max(1, int(user_width * 0.58))
+            target_height = max(1, int(user_height * 0.46))
 
         garment.thumbnail((target_width, target_height), Image.Resampling.LANCZOS)
         canvas = Image.new("RGBA", (target_width, target_height), (0, 0, 0, 0))
@@ -81,5 +87,6 @@ class LocalTryOnEngine(TryOnEngine):
         user_width, user_height = user_size
         garment_width, garment_height = garment_size
         x = (user_width - garment_width) // 2
-        y = int(user_height * 0.28)
+        garment_ratio = garment_height / max(1, garment_width)
+        y = int(user_height * (0.14 if garment_ratio >= 1.12 else 0.28))
         return x, min(y, user_height - garment_height)
