@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: virtual-trial-room-backend
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    disk:
+      name: virtual-trial-room-data
+      mountPath: /data
+      sizeGB: 10
+    envVars:
+      - key: VTR_ENVIRONMENT
+        value: production
+      - key: VTR_UPLOAD_DIR
+        value: /data/uploads
+      - key: VTR_OUTPUT_DIR
+        value: /data/outputs
+      - key: VTR_DATABASE_PATH
+        value: /data/virtual_trial_room.sqlite3
+      - key: VTR_MAX_UPLOAD_MB
+        value: "12"
+      - key: VTR_CORS_ALLOWED_ORIGINS
+        value: "*"
+
