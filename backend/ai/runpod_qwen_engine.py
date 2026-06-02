@@ -33,7 +33,7 @@ class RunPodQwenImageEditEngine(TryOnEngine):
                 "prompt": PHOTOREAL_TRY_ON_PROMPT,
                 "images": [person_image, garment_image],
                 "size": "1024*1280",
-                "output_format": "jpg",
+                "output_format": "jpeg",
                 "negative_prompt": (
                     "cartoon, illustration, fake overlay, duplicate person, changed face, "
                     "changed hairstyle, distorted body, blurry, low quality"
@@ -49,6 +49,9 @@ class RunPodQwenImageEditEngine(TryOnEngine):
             )
             response.raise_for_status()
             response_payload = response.json()
+            if response_payload.get("status") == "FAILED":
+                error = response_payload.get("error") or response_payload.get("output")
+                raise ValueError(f"RunPod Qwen generation failed: {error}")
 
         image_base64 = self._extract_output_image(response_payload)
         output_image_path.parent.mkdir(parents=True, exist_ok=True)
