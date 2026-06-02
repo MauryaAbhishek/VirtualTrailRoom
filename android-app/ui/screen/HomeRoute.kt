@@ -1,6 +1,5 @@
 package com.virtualtrialroom.app.ui.screen
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,27 +19,40 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.Collections
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
+internal val Maroon = Color(0xFF4C061D)
+internal val MaroonDeep = Color(0xFF21000D)
+internal val Gold = Color(0xFFFFC15A)
+internal val CreamText = Color(0xFFFFF2DD)
 
 @Composable
 fun HomeRoute(
@@ -52,7 +64,11 @@ fun HomeRoute(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFAF8F4))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(MaroonDeep, Maroon, Color(0xFF140006))
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -60,252 +76,255 @@ fun HomeRoute(
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+                .padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            TopHeader(onSettingsClick = onSettingsClick)
-            HeroPanel()
-            WorkflowPanel(
-                onCaptureClick = onCaptureClick,
-                onWardrobeClick = onWardrobeClick
+            DashboardTopBar(onSettingsClick = onSettingsClick)
+            BrandHeader()
+            GreetingBlock()
+            MetricCard(
+                title = "Today's Try-Ons",
+                value = "12",
+                caption = "+4 from yesterday",
+                icon = Icons.AutoMirrored.Filled.TrendingUp
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                CompactAction(
-                    title = "Saved",
-                    subtitle = "Looks",
-                    icon = Icons.Filled.Collections,
-                    modifier = Modifier.weight(1f),
-                    onClick = onSavedResultsClick
+            CreditCard()
+            Button(
+                onClick = onCaptureClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Gold,
+                    contentColor = Color(0xFF24000E)
                 )
-                CompactAction(
-                    title = "Quality",
-                    subtitle = "Ready",
-                    icon = Icons.Filled.Verified,
-                    modifier = Modifier.weight(1f),
-                    onClick = onWardrobeClick
-                )
+            ) {
+                Icon(imageVector = Icons.Filled.AutoAwesome, contentDescription = null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "New AI Try-On", fontWeight = FontWeight.Black)
             }
+            RecentHeader(onSavedResultsClick)
+            RecentTryOnList()
+            Spacer(modifier = Modifier.height(66.dp))
         }
+        DashboardBottomBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            onHomeClick = {},
+            onStudioClick = onCaptureClick,
+            onCatalogClick = onWardrobeClick,
+            onCustomersClick = onSavedResultsClick,
+            onMoreClick = onSettingsClick
+        )
     }
 }
 
 @Composable
-private fun TopHeader(onSettingsClick: () -> Unit) {
+private fun DashboardTopBar(onSettingsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = "Virtual Trial Room",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Black,
-                color = Color(0xFF17151A)
-            )
-            Text(
-                text = "AI-powered fashion preview",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF68606A)
-            )
+        IconButton(onClick = onSettingsClick) {
+            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu", tint = CreamText)
         }
-        Surface(
-            shape = CircleShape,
-            color = Color.White,
-            shadowElevation = 4.dp
-        ) {
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "Settings",
-                    tint = Color(0xFF17151A)
-                )
-            }
+        Surface(shape = CircleShape, color = Gold) {
+            Icon(
+                modifier = Modifier.padding(9.dp),
+                imageVector = Icons.Filled.Notifications,
+                contentDescription = "Notifications",
+                tint = MaroonDeep
+            )
         }
     }
 }
 
 @Composable
-private fun HeroPanel() {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        color = Color(0xFF17151A),
-        shadowElevation = 12.dp
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            Color(0xFF17151A),
-                            Color(0xFF6B183D),
-                            Color(0xFFE6A23C)
-                        )
-                    )
-                )
-                .padding(22.dp)
-        ) {
-            Surface(
-                modifier = Modifier.align(Alignment.TopStart),
-                color = Color.White.copy(alpha = 0.14f),
-                contentColor = Color.White,
-                shape = RoundedCornerShape(100.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Filled.AutoAwesome, contentDescription = null)
-                    Text(
-                        text = "Photoreal try-on",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            Column(
-                modifier = Modifier.align(Alignment.BottomStart),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = "See the saree on your photo",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Black
-                )
-                Text(
-                    text = "Upload one full-body person photo and one garment photo.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.82f)
-                )
-            }
-        }
+private fun BrandHeader() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "SAAJ",
+            style = MaterialTheme.typography.displaySmall,
+            color = Gold,
+            fontWeight = FontWeight.Light
+        )
+        Text(
+            text = "AI Fashion Assistant",
+            style = MaterialTheme.typography.bodyMedium,
+            color = CreamText.copy(alpha = 0.78f)
+        )
     }
 }
 
 @Composable
-private fun WorkflowPanel(
-    onCaptureClick: () -> Unit,
-    onWardrobeClick: () -> Unit
+private fun GreetingBlock() {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = "Good Morning,", style = MaterialTheme.typography.bodyMedium, color = CreamText.copy(alpha = 0.78f))
+        Text(text = "Priya Boutique", style = MaterialTheme.typography.titleLarge, color = Color.White, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun MetricCard(
+    title: String,
+    value: String,
+    caption: String,
+    icon: ImageVector
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        color = Color.White,
-        shadowElevation = 6.dp
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White.copy(alpha = 0.08f)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(text = title, style = MaterialTheme.typography.labelLarge, color = CreamText)
+                Text(text = value, style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Black)
+                Text(text = caption, style = MaterialTheme.typography.bodySmall, color = CreamText.copy(alpha = 0.7f))
+            }
+            Icon(imageVector = icon, contentDescription = null, tint = Gold, modifier = Modifier.size(42.dp))
+        }
+    }
+}
+
+@Composable
+private fun CreditCard() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White.copy(alpha = 0.08f)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "Create your look",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-                color = Color(0xFF17151A)
-            )
-            WorkflowAction(
-                step = "01",
-                title = "Add person photo",
-                subtitle = "Use a clear full-body image",
-                icon = Icons.Filled.CameraAlt,
-                primary = true,
-                onClick = onCaptureClick
-            )
-            WorkflowAction(
-                step = "02",
-                title = "Add garment photo",
-                subtitle = "Upload saree, dress, top, or outfit",
-                icon = Icons.Filled.Checkroom,
-                primary = false,
-                onClick = onWardrobeClick
+            Text(text = "Credits Remaining", style = MaterialTheme.typography.labelLarge, color = CreamText)
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(text = "88", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Black)
+                Text(text = " / 100", style = MaterialTheme.typography.titleMedium, color = CreamText.copy(alpha = 0.72f))
+            }
+            LinearProgressIndicator(
+                progress = { 0.88f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(7.dp)
+                    .clip(RoundedCornerShape(100.dp)),
+                color = Gold,
+                trackColor = Color.White.copy(alpha = 0.13f)
             )
         }
     }
 }
 
 @Composable
-private fun WorkflowAction(
-    step: String,
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
-    primary: Boolean,
-    onClick: () -> Unit
+private fun RecentHeader(onSavedResultsClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Recent Try-Ons", style = MaterialTheme.typography.titleMedium, color = Color.White, fontWeight = FontWeight.Bold)
+        Surface(onClick = onSavedResultsClick, color = Color.Transparent) {
+            Text(text = "See All", style = MaterialTheme.typography.labelLarge, color = Gold, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun RecentTryOnList() {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        RecentTryOn(name = "Priya Sharma", garment = "Red Banarasi Saree", time = "2 min ago", color = Color(0xFFB91C1C))
+        RecentTryOn(name = "Neha Gupta", garment = "Peach Organza Saree", time = "15 min ago", color = Color(0xFFE59F7B))
+    }
+}
+
+@Composable
+private fun RecentTryOn(
+    name: String,
+    garment: String,
+    time: String,
+    color: Color
 ) {
-    Button(
-        onClick = onClick,
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(76.dp),
-        shape = RoundedCornerShape(22.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (primary) MaterialTheme.colorScheme.primary else Color(0xFFF4EFE9),
-            contentColor = if (primary) Color.White else Color(0xFF17151A)
-        ),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp)
+            .height(72.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Surface(
-            shape = CircleShape,
-            color = if (primary) Color.White.copy(alpha = 0.18f) else Color.White
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                text = step,
-                fontWeight = FontWeight.Black
-            )
+        SareeThumb(color = color, modifier = Modifier.size(58.dp))
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(text = name, color = Color.White, fontWeight = FontWeight.SemiBold)
+            Text(text = garment, color = CreamText.copy(alpha = 0.72f), style = MaterialTheme.typography.bodySmall)
+            Text(text = time, color = Gold, style = MaterialTheme.typography.bodySmall)
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        Icon(imageVector = icon, contentDescription = null)
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.Start
+        Icon(imageVector = Icons.Filled.MoreHoriz, contentDescription = null, tint = CreamText.copy(alpha = 0.48f))
+    }
+}
+
+@Composable
+private fun SareeThumb(color: Color, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(color.copy(alpha = 0.95f), Color(0xFFFFD37A), color)
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(imageVector = Icons.Filled.Checkroom, contentDescription = null, tint = Color.White)
+    }
+}
+
+@Composable
+private fun DashboardBottomBar(
+    modifier: Modifier = Modifier,
+    onHomeClick: () -> Unit,
+    onStudioClick: () -> Unit,
+    onCatalogClick: () -> Unit,
+    onCustomersClick: () -> Unit,
+    onMoreClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = Color(0xFF180008).copy(alpha = 0.96f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = title, fontWeight = FontWeight.Black)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = if (primary) Color.White.copy(alpha = 0.78f) else Color(0xFF68606A)
-            )
+            BottomItem("Home", Icons.Filled.Home, true, onHomeClick)
+            BottomItem("Studio", Icons.Filled.CameraAlt, false, onStudioClick)
+            BottomItem("Catalog", Icons.Filled.Checkroom, false, onCatalogClick)
+            BottomItem("Looks", Icons.Filled.Collections, false, onCustomersClick)
+            BottomItem("More", Icons.Filled.AccountCircle, false, onMoreClick)
         }
     }
 }
 
 @Composable
-private fun CompactAction(
-    title: String,
-    subtitle: String,
+private fun BottomItem(
+    label: String,
     icon: ImageVector,
-    modifier: Modifier = Modifier,
+    selected: Boolean,
     onClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier.height(104.dp),
-        onClick = onClick,
-        shape = RoundedCornerShape(24.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE8DED4)),
-        shadowElevation = 3.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Column {
-                Text(text = title, fontWeight = FontWeight.Black, color = Color(0xFF17151A))
-                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = Color(0xFF68606A))
-            }
+    Surface(onClick = onClick, color = Color.Transparent) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(imageVector = icon, contentDescription = label, tint = if (selected) Gold else CreamText.copy(alpha = 0.64f))
+            Text(text = label, style = MaterialTheme.typography.labelSmall, color = if (selected) Gold else CreamText.copy(alpha = 0.64f))
         }
     }
 }
