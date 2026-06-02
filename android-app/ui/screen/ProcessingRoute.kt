@@ -44,6 +44,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -76,7 +77,16 @@ fun ProcessingRoute(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(MaroonDeep, Maroon, Color(0xFF160006))))
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFF21000D),
+                        Color(0xFF410118),
+                        Color(0xFF2A0010),
+                        Color(0xFF160006)
+                    )
+                )
+            )
     ) {
         MagicWaveBackground()
         Column(
@@ -150,55 +160,117 @@ fun ProcessingRoute(
 @Composable
 private fun MagicWaveBackground() {
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val wave = Path().apply {
-            moveTo(-30f, size.height * 0.48f)
-            cubicTo(
-                size.width * 0.18f,
-                size.height * 0.43f,
-                size.width * 0.40f,
-                size.height * 0.43f,
-                size.width * 0.57f,
-                size.height * 0.37f
-            )
-            cubicTo(
-                size.width * 0.76f,
-                size.height * 0.31f,
-                size.width * 0.91f,
-                size.height * 0.35f,
-                size.width + 40f,
-                size.height * 0.30f
-            )
-        }
-        drawPath(
-            path = wave,
-            brush = Brush.horizontalGradient(
-                listOf(Color.Transparent, Color(0xFFFF7D6E).copy(alpha = 0.80f), Gold.copy(alpha = 0.55f), Color.Transparent)
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(Color(0xFFFF6388).copy(alpha = 0.24f), Color.Transparent),
+                center = Offset(size.width * 0.50f, size.height * 0.27f),
+                radius = size.width * 0.58f
             ),
-            style = Stroke(width = 2.2f, cap = StrokeCap.Round)
-        )
-        drawPath(
-            path = wave,
-            color = Color(0xFFFF8A75).copy(alpha = 0.10f),
-            style = Stroke(width = 22f, cap = StrokeCap.Round)
+            radius = size.width * 0.58f,
+            center = Offset(size.width * 0.50f, size.height * 0.27f)
         )
         drawCircle(
             brush = Brush.radialGradient(
-                listOf(Gold.copy(alpha = 0.22f), Color.Transparent),
-                center = Offset(size.width * 0.76f, size.height * 0.33f),
-                radius = size.width * 0.38f
+                listOf(Gold.copy(alpha = 0.18f), Color.Transparent),
+                center = Offset(size.width * 0.82f, size.height * 0.42f),
+                radius = size.width * 0.48f
             ),
-            radius = size.width * 0.38f,
-            center = Offset(size.width * 0.76f, size.height * 0.33f)
+            radius = size.width * 0.48f,
+            center = Offset(size.width * 0.82f, size.height * 0.42f)
         )
+
+        val mainWave = Path().apply {
+            moveTo(-60f, size.height * 0.47f)
+            cubicTo(
+                size.width * 0.18f, size.height * 0.43f,
+                size.width * 0.31f, size.height * 0.52f,
+                size.width * 0.47f, size.height * 0.45f
+            )
+            cubicTo(
+                size.width * 0.66f, size.height * 0.37f,
+                size.width * 0.78f, size.height * 0.30f,
+                size.width + 70f, size.height * 0.40f
+            )
+        }
+        val lowerWave = Path().apply {
+            moveTo(-70f, size.height * 0.52f)
+            cubicTo(
+                size.width * 0.18f, size.height * 0.48f,
+                size.width * 0.36f, size.height * 0.55f,
+                size.width * 0.58f, size.height * 0.48f
+            )
+            cubicTo(
+                size.width * 0.76f, size.height * 0.43f,
+                size.width * 0.90f, size.height * 0.44f,
+                size.width + 70f, size.height * 0.34f
+            )
+        }
+        drawPath(
+            path = mainWave,
+            color = Color(0xFFFF6A8F).copy(alpha = 0.10f),
+            style = Stroke(width = 34f, cap = StrokeCap.Round)
+        )
+        drawPath(
+            path = mainWave,
+            brush = Brush.horizontalGradient(
+                listOf(
+                    Color.Transparent,
+                    Color(0xFFFF5F84).copy(alpha = 0.52f),
+                    Color(0xFFFFB75E).copy(alpha = 0.70f),
+                    Color.Transparent
+                )
+            ),
+            style = Stroke(width = 2.4f, cap = StrokeCap.Round)
+        )
+        drawPath(
+            path = lowerWave,
+            color = Gold.copy(alpha = 0.09f),
+            style = Stroke(width = 26f, cap = StrokeCap.Round)
+        )
+        drawPath(
+            path = lowerWave,
+            brush = Brush.horizontalGradient(
+                listOf(Color.Transparent, Gold.copy(alpha = 0.48f), Color(0xFFFF6A8F).copy(alpha = 0.38f), Color.Transparent)
+            ),
+            style = Stroke(width = 1.8f, cap = StrokeCap.Round)
+        )
+
         drawArc(
-            color = Color(0xFFFF6A8F).copy(alpha = 0.28f),
-            startAngle = 205f,
-            sweepAngle = 120f,
+            color = Color(0xFFFF6A8F).copy(alpha = 0.34f),
+            startAngle = 198f,
+            sweepAngle = 128f,
             useCenter = false,
-            topLeft = Offset(size.width * 0.27f, size.height * 0.14f),
-            size = Size(size.width * 0.48f, size.width * 0.48f),
+            topLeft = Offset(size.width * 0.26f, size.height * 0.13f),
+            size = Size(size.width * 0.50f, size.width * 0.50f),
             style = Stroke(width = 2f, cap = StrokeCap.Round)
         )
+        drawArc(
+            color = Gold.copy(alpha = 0.26f),
+            startAngle = 23f,
+            sweepAngle = 92f,
+            useCenter = false,
+            topLeft = Offset(size.width * 0.21f, size.height * 0.18f),
+            size = Size(size.width * 0.60f, size.width * 0.60f),
+            style = Stroke(width = 1.4f, cap = StrokeCap.Round)
+        )
+
+        val sparkles = listOf(
+            Offset(size.width * 0.12f, size.height * 0.37f),
+            Offset(size.width * 0.21f, size.height * 0.42f),
+            Offset(size.width * 0.72f, size.height * 0.34f),
+            Offset(size.width * 0.84f, size.height * 0.39f),
+            Offset(size.width * 0.90f, size.height * 0.47f),
+            Offset(size.width * 0.63f, size.height * 0.51f),
+            Offset(size.width * 0.34f, size.height * 0.50f),
+        )
+        sparkles.forEachIndexed { index, center ->
+            drawCircle(
+                color = if (index % 2 == 0) Gold.copy(alpha = 0.55f) else Color(0xFFFF6A8F).copy(alpha = 0.45f),
+                radius = if (index % 3 == 0) 3.2f else 2.0f,
+                center = center,
+                style = Fill
+            )
+        }
     }
 }
 
