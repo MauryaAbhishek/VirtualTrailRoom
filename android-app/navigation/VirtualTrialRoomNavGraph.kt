@@ -6,13 +6,17 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.virtualtrialroom.app.ui.screen.AiStylistRoute
+import com.virtualtrialroom.app.ui.screen.BeforeAfterRoute
 import com.virtualtrialroom.app.ui.screen.CaptureRoute
 import com.virtualtrialroom.app.ui.screen.HomeRoute
+import com.virtualtrialroom.app.ui.screen.InsightsRoute
 import com.virtualtrialroom.app.ui.screen.PreviewRoute
 import com.virtualtrialroom.app.ui.screen.ProcessingRoute
 import com.virtualtrialroom.app.ui.screen.ResultRoute
 import com.virtualtrialroom.app.ui.screen.SavedResultsRoute
 import com.virtualtrialroom.app.ui.screen.SettingsRoute
+import com.virtualtrialroom.app.ui.screen.ShareCustomerRoute
 import com.virtualtrialroom.app.ui.screen.WardrobeRoute
 
 @Composable
@@ -127,6 +131,8 @@ fun VirtualTrialRoomNavGraph(
 
             ResultRoute(
                 resultId = resultId,
+                onBeforeAfterClick = navigator::navigateToBeforeAfter,
+                onShareCustomerClick = navigator::navigateToShareCustomer,
                 onBackToHomeClick = {
                     navController.popBackStack(
                         route = AppDestination.Home.route,
@@ -141,7 +147,28 @@ fun VirtualTrialRoomNavGraph(
         }
 
         composable(AppDestination.Settings.route) {
-            SettingsRoute(onBackClick = navigator::navigateBack)
+            SettingsRoute(
+                onBackClick = navigator::navigateBack,
+                onAiStylistClick = navigator::navigateToAiStylist,
+                onInsightsClick = navigator::navigateToInsights,
+                onShareCustomerClick = navigator::navigateToShareCustomer
+            )
+        }
+
+        composable(AppDestination.BeforeAfter.route) {
+            BeforeAfterRoute(onBackClick = navigator::navigateBack)
+        }
+
+        composable(AppDestination.ShareCustomer.route) {
+            ShareCustomerRoute(onBackClick = navigator::navigateBack)
+        }
+
+        composable(AppDestination.AiStylist.route) {
+            AiStylistRoute(onBackClick = navigator::navigateBack)
+        }
+
+        composable(AppDestination.Insights.route) {
+            InsightsRoute(onBackClick = navigator::navigateBack)
         }
     }
 }

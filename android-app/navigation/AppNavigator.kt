@@ -38,6 +38,22 @@ class AppNavigator(
         navController.navigate(AppDestination.Settings.route)
     }
 
+    fun navigateToBeforeAfter() {
+        navController.navigate(AppDestination.BeforeAfter.route)
+    }
+
+    fun navigateToShareCustomer() {
+        navController.navigate(AppDestination.ShareCustomer.route)
+    }
+
+    fun navigateToAiStylist() {
+        navController.navigate(AppDestination.AiStylist.route)
+    }
+
+    fun navigateToInsights() {
+        navController.navigate(AppDestination.Insights.route)
+    }
+
     fun navigateBack() {
         navController.navigateUp()
     }

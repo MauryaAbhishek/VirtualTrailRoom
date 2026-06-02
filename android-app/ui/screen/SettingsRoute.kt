@@ -40,7 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsRoute(onBackClick: () -> Unit) {
+fun SettingsRoute(
+    onBackClick: () -> Unit,
+    onAiStylistClick: () -> Unit,
+    onInsightsClick: () -> Unit,
+    onShareCustomerClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,9 +80,9 @@ fun SettingsRoute(onBackClick: () -> Unit) {
                 MoreRow("My Profile", Icons.Filled.AccountCircle)
                 MoreRow("Business Details", Icons.Filled.Business)
                 MoreRow("Subscription & Credits", Icons.Filled.CreditCard)
-                MoreRow("AI Settings", Icons.Filled.Settings)
-                MoreRow("WhatsApp Templates", Icons.Filled.Storage)
-                MoreRow("Reports", Icons.Filled.BarChart)
+                MoreRow("AI Settings", Icons.Filled.Settings, onClick = onAiStylistClick)
+                MoreRow("WhatsApp Templates", Icons.Filled.Storage, onClick = onShareCustomerClick)
+                MoreRow("Reports", Icons.Filled.BarChart, onClick = onInsightsClick)
                 MoreRow("Help & Support", Icons.AutoMirrored.Filled.Help)
                 MoreRow("Logout", Icons.AutoMirrored.Filled.Logout, danger = true)
             }
@@ -89,15 +94,18 @@ fun SettingsRoute(onBackClick: () -> Unit) {
 private fun MoreRow(
     title: String,
     icon: ImageVector,
-    danger: Boolean = false
+    danger: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(imageVector = icon, contentDescription = null, tint = if (danger) Color(0xFFDC2626) else MaroonDeep)
-        Text(modifier = Modifier.weight(1f), text = title, color = if (danger) Color(0xFFDC2626) else MaroonDeep, fontWeight = FontWeight.SemiBold)
-        Text(text = "›", color = if (danger) Color(0xFFDC2626) else Color(0xFF8D737A), style = MaterialTheme.typography.titleLarge)
+    Surface(onClick = onClick, color = Color.Transparent) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = icon, contentDescription = null, tint = if (danger) Color(0xFFDC2626) else MaroonDeep)
+            Text(modifier = Modifier.weight(1f), text = title, color = if (danger) Color(0xFFDC2626) else MaroonDeep, fontWeight = FontWeight.SemiBold)
+            Text(text = "›", color = if (danger) Color(0xFFDC2626) else Color(0xFF8D737A), style = MaterialTheme.typography.titleLarge)
+        }
     }
 }

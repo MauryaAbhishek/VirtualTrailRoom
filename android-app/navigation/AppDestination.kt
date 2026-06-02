@@ -8,6 +8,10 @@ sealed class AppDestination(
     data object Capture : AppDestination("capture", "Capture")
     data object SavedResults : AppDestination("saved-results", "Saved")
     data object Settings : AppDestination("settings", "Settings")
+    data object BeforeAfter : AppDestination("before-after", "Before & After")
+    data object ShareCustomer : AppDestination("share-customer", "Share")
+    data object AiStylist : AppDestination("ai-stylist", "AI Stylist")
+    data object Insights : AppDestination("insights", "Insights")
 
     data object Wardrobe : AppDestination(
         route = "wardrobe?photoId={photoId}",

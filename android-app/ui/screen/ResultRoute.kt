@@ -1,6 +1,5 @@
 package com.virtualtrialroom.app.ui.screen
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -55,10 +53,11 @@ import com.virtualtrialroom.app.viewmodel.ResultViewModel
 @Composable
 fun ResultRoute(
     resultId: String,
+    onBeforeAfterClick: () -> Unit,
+    onShareCustomerClick: () -> Unit,
     onBackToHomeClick: () -> Unit,
     viewModel: ResultViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val imageUrl = viewModel.imageUrlFor(resultId)
     var retryKey by remember(resultId) { mutableIntStateOf(0) }
     var isImageLoading by remember(resultId, retryKey) { mutableStateOf(true) }
@@ -136,13 +135,9 @@ fun ResultRoute(
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             ResultAction("Share", Icons.Filled.Share) {
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, imageUrl)
-                }
-                context.startActivity(Intent.createChooser(sendIntent, "Share try-on"))
+                onShareCustomerClick()
             }
-            ResultAction("Download", Icons.Filled.Download) {}
+            ResultAction("Compare", Icons.Filled.Download) { onBeforeAfterClick() }
             ResultAction("Try Another", Icons.Filled.Refresh) { retryKey += 1 }
         }
         Spacer(modifier = Modifier.height(8.dp))
