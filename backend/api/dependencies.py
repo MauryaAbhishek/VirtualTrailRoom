@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from backend.app.config import Settings, get_settings
 from backend.ai.engine import TryOnEngine
+from backend.ai.fashn_engine import FashnTryOnEngine
 from backend.ai.local_engine import LocalTryOnEngine
 from backend.ai.runpod_engine import RunPodTryOnEngine
 from backend.ai.runpod_qwen_engine import RunPodQwenImageEditEngine
@@ -32,6 +33,8 @@ def try_on_service_dependency() -> TryOnService:
 @lru_cache
 def try_on_engine_dependency() -> TryOnEngine:
     settings = settings_dependency()
+    if settings.ai_provider == "fashn":
+        return FashnTryOnEngine(settings)
     if settings.ai_provider == "runpod_qwen":
         return RunPodQwenImageEditEngine(settings)
     if settings.ai_provider == "runpod":

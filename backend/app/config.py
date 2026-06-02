@@ -19,6 +19,8 @@ class Settings:
     runpod_endpoint_id: str | None
     runpod_api_key: str | None
     runpod_timeout_seconds: float
+    fashn_api_key: str | None
+    fashn_timeout_seconds: float
 
 
 def get_settings() -> Settings:
@@ -48,4 +50,6 @@ def get_settings() -> Settings:
         runpod_endpoint_id=os.getenv("VTR_RUNPOD_ENDPOINT_ID"),
         runpod_api_key=os.getenv("VTR_RUNPOD_API_KEY"),
         runpod_timeout_seconds=float(os.getenv("VTR_RUNPOD_TIMEOUT_SECONDS", "180")),
+        fashn_api_key=os.getenv("VTR_FASHN_API_KEY"),
+        fashn_timeout_seconds=float(os.getenv("VTR_FASHN_TIMEOUT_SECONDS", "180")),
     )

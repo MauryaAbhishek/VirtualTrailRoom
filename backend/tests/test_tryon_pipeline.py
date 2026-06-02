@@ -100,6 +100,8 @@ class TryOnPipelineTest(unittest.TestCase):
             runpod_endpoint_id=None,
             runpod_api_key=None,
             runpod_timeout_seconds=180,
+            fashn_api_key=None,
+            fashn_timeout_seconds=180,
         )
 
 
