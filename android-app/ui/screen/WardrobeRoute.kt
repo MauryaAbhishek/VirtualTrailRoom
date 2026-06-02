@@ -2,15 +2,33 @@ package com.virtualtrialroom.app.ui.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Checkroom
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Style
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.virtualtrialroom.app.ui.components.AppScaffold
@@ -47,20 +65,13 @@ fun WardrobeRoute(
     }
 
     AppScaffold(
-        title = "Wardrobe",
+        title = "Garment",
         onBackClick = onBackClick
     ) {
-        androidx.compose.foundation.layout.Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            InfoPanel(
-                title = "Garment",
-                body = "Upload the clothing photo the user should wear, such as a saree, dress, or top.",
-                icon = Icons.Filled.Checkroom
-            )
-            PrimaryActionButton(
-                text = "Upload Garment Photo",
-                icon = Icons.Filled.PhotoLibrary,
+            UploadStudioPanel(
                 enabled = !uiState.isLoading,
                 onClick = { garmentPicker.launch("image/*") }
             )
@@ -73,21 +84,87 @@ fun WardrobeRoute(
                     onRetryClick = { garmentPicker.launch("image/*") }
                 )
             }
-            SecondaryActionButton(
-                text = "Tops",
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                onClick = { onClothingSelected("tops") }
+            InfoPanel(
+                title = "Best result",
+                body = "Use a front-facing garment image with clear fabric and minimal background.",
+                icon = Icons.Filled.Checkroom
             )
-            SecondaryActionButton(
-                text = "Dresses",
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                onClick = { onClothingSelected("dresses") }
+            Text(
+                text = "Quick categories",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
             )
-            SecondaryActionButton(
-                text = "Outerwear",
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                onClick = { onClothingSelected("outerwear") }
+            CategoryButton(text = "Sarees", onClick = { onClothingSelected("sarees") })
+            CategoryButton(text = "Dresses", onClick = { onClothingSelected("dresses") })
+            CategoryButton(text = "Tops", onClick = { onClothingSelected("tops") })
+            CategoryButton(text = "Outerwear", onClick = { onClothingSelected("outerwear") })
+        }
+    }
+}
+
+@Composable
+private fun UploadStudioPanel(
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        shadowElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CloudUpload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        text = "Upload Saree / Outfit",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Photo from gallery",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            PrimaryActionButton(
+                text = "Choose Garment Image",
+                icon = Icons.Filled.PhotoLibrary,
+                enabled = enabled,
+                onClick = onClick
             )
         }
     }
+}
+
+@Composable
+private fun CategoryButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    SecondaryActionButton(
+        text = text,
+        icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+        onClick = onClick
+    )
 }

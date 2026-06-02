@@ -5,35 +5,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val LightColors = lightColorScheme(
-    primary = Blue,
-    onPrimary = Mist,
-    primaryContainer = Cloud,
+    primary = Rose,
+    onPrimary = Porcelain,
+    primaryContainer = Color(0xFFFFD9E6),
     onPrimaryContainer = Ink,
-    secondary = Green,
-    onSecondary = Mist,
+    secondary = Teal,
+    onSecondary = Porcelain,
+    secondaryContainer = Color(0xFFD6F3F1),
+    onSecondaryContainer = Ink,
+    tertiary = Saffron,
+    onTertiary = Ink,
     error = Red,
     background = Mist,
     onBackground = Ink,
-    surface = Mist,
+    surface = Porcelain,
     onSurface = Ink,
     surfaceVariant = Cloud,
     onSurfaceVariant = Slate
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Blue,
-    onPrimary = Mist,
-    primaryContainer = BlueDark,
-    onPrimaryContainer = Mist,
-    secondary = Green,
-    onSecondary = Mist,
+    primary = Color(0xFFFF8FBC),
+    onPrimary = Ink,
+    primaryContainer = RoseDark,
+    onPrimaryContainer = Porcelain,
+    secondary = Color(0xFF73D8D0),
+    onSecondary = Ink,
+    secondaryContainer = Color(0xFF095B63),
+    onSecondaryContainer = Porcelain,
+    tertiary = Saffron,
+    onTertiary = Ink,
     error = Red,
     background = Ink,
-    onBackground = Mist,
-    surface = Ink,
-    onSurface = Mist,
+    onBackground = Porcelain,
+    surface = Color(0xFF171B22),
+    onSurface = Porcelain,
     surfaceVariant = Slate,
     onSurfaceVariant = Cloud
 )
@@ -49,4 +58,3 @@ fun VirtualTrialRoomTheme(
         content = content
     )
 }
-
