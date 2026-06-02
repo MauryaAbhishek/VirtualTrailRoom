@@ -3,20 +3,31 @@ package com.virtualtrialroom.app.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Style
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,14 +38,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.virtualtrialroom.app.ui.components.AppScaffold
 import com.virtualtrialroom.app.ui.components.ErrorState
 import com.virtualtrialroom.app.ui.components.LoadingState
-import com.virtualtrialroom.app.ui.components.PrimaryActionButton
 import com.virtualtrialroom.app.util.AppError
 import com.virtualtrialroom.app.viewmodel.PreviewViewModel
 
@@ -56,153 +66,111 @@ fun PreviewRoute(
         }
     }
 
-    AppScaffold(
-        title = "Generate",
-        onBackClick = onBackClick
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFF8EF))
+            .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            GenerationStage()
-            SelectionRow(photoId = photoId, clothingId = clothingId)
-            if (uiState.isLoading) {
-                LoadingState(
-                    message = uiState.statusMessage ?: "Creating try-on job."
-                )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaroonDeep)
             }
-            if (uiState.errorMessage != null) {
-                ErrorState(
-                    error = AppError.Network(uiState.errorMessage ?: ""),
-                    onRetryClick = { viewModel.submitTryOn(photoId, clothingId) }
-                )
-            }
-            PrimaryActionButton(
-                text = if (uiState.isLoading) "Starting" else "Generate Try-On",
-                icon = Icons.Filled.AutoAwesome,
-                enabled = !uiState.isLoading,
-                onClick = { viewModel.submitTryOn(photoId, clothingId) }
+            Text(
+                modifier = Modifier.weight(1f),
+                text = "CREATE NEW LOOK",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaroonDeep,
+                fontWeight = FontWeight.Black
             )
         }
+        StepBar()
+        CustomerPhotoPreview()
+        SelectionCard("Customer Photo", photoId.take(8), Icons.Filled.Person)
+        SelectionCard("Selected Saree", clothingId.take(8), Icons.Filled.Style)
+        if (uiState.isLoading) {
+            LoadingState(message = uiState.statusMessage ?: "Creating try-on job.")
+        }
+        if (uiState.errorMessage != null) {
+            ErrorState(
+                error = AppError.Network(uiState.errorMessage ?: ""),
+                onRetryClick = { viewModel.submitTryOn(photoId, clothingId) }
+            )
+        }
+        Button(
+            onClick = { viewModel.submitTryOn(photoId, clothingId) },
+            enabled = !uiState.isLoading,
+            modifier = Modifier.fillMaxWidth().height(60.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Maroon, contentColor = Color.White)
+        ) {
+            Text(text = if (uiState.isLoading) "Starting" else "Continue →", fontWeight = FontWeight.Black)
+        }
     }
 }
 
 @Composable
-private fun GenerationStage() {
-    BoxWithConstraints {
-        val stageHeight = if (maxHeight < 720.dp) 152.dp else 210.dp
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp,
-            shadowElevation = 1.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+private fun StepBar() {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        StepBubble("1", "Customer", true)
+        StepBubble("2", "Saree", true)
+        StepBubble("3", "Generate", false)
+    }
+}
+
+@Composable
+private fun StepBubble(number: String, label: String, active: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Surface(shape = CircleShape, color = if (active) Maroon else Color(0xFFE8D8CB)) {
+            Text(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                text = number,
+                color = if (active) Color.White else MaroonDeep,
+                fontWeight = FontWeight.Black
+            )
+        }
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaroonDeep)
+    }
+}
+
+@Composable
+private fun CustomerPhotoPreview() {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(text = "Customer Photo", color = MaroonDeep, fontWeight = FontWeight.Black)
+        Text(text = "Add a clear front-facing photo", color = Color(0xFF7A6570), style = MaterialTheme.typography.bodyMedium)
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .size(210.dp)
+                    .clip(CircleShape)
+                    .background(Brush.verticalGradient(listOf(Color(0xFFFFEAD6), Color(0xFFF7C9A2)))),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(stageHeight)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ImageSearch,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Ready to Create",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Person + garment selected",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ReadyChip(text = "Photo", modifier = Modifier.weight(1f))
-                    ReadyChip(text = "Garment", modifier = Modifier.weight(1f))
-                }
+                Icon(imageVector = Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(96.dp), tint = Maroon.copy(alpha = 0.72f))
+            }
+            Surface(modifier = Modifier.align(Alignment.BottomCenter), shape = CircleShape, color = Color.White, shadowElevation = 6.dp) {
+                Icon(modifier = Modifier.padding(12.dp), imageVector = Icons.Filled.CameraAlt, contentDescription = null, tint = Maroon)
             }
         }
     }
 }
 
 @Composable
-private fun SelectionRow(
-    photoId: String,
-    clothingId: String
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        SelectionTile(
-            title = "Person",
-            value = photoId.take(8),
-            icon = Icons.Filled.Person,
-            modifier = Modifier.weight(1f)
-        )
-        SelectionTile(
-            title = "Garment",
-            value = clothingId.take(8),
-            icon = Icons.Filled.Style,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun SelectionTile(
-    title: String,
-    value: String,
-    icon: ImageVector,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            Text(text = title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(text = value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-@Composable
-private fun ReadyChip(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        shape = RoundedCornerShape(100.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = null)
-            Text(text = text, fontWeight = FontWeight.SemiBold)
+private fun SelectionCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Surface(shape = RoundedCornerShape(18.dp), color = Color.White.copy(alpha = 0.9f), shadowElevation = 3.dp) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(shape = CircleShape, color = Color(0xFFFFE2E9)) {
+                Icon(modifier = Modifier.padding(9.dp), imageVector = icon, contentDescription = null, tint = Maroon)
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, fontWeight = FontWeight.Black, color = MaroonDeep)
+                Text(text = value, color = Color(0xFF7A6570), style = MaterialTheme.typography.bodyMedium)
+            }
+            Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = null, tint = Color(0xFF16A34A))
         }
     }
 }
