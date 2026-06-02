@@ -53,9 +53,10 @@ class RunPodQwenImageEditEngine(TryOnEngine):
                 error = response_payload.get("error") or response_payload.get("output")
                 raise ValueError(f"RunPod Qwen generation failed: {error}")
 
-        image_base64 = self._extract_output_image(response_payload)
+            image_bytes = await self._extract_output_image_bytes(client, response_payload)
+
         output_image_path.parent.mkdir(parents=True, exist_ok=True)
-        output_image_path.write_bytes(base64.b64decode(image_base64))
+        output_image_path.write_bytes(image_bytes)
 
     def _headers(self) -> dict[str, str]:
         return {
@@ -75,27 +76,49 @@ class RunPodQwenImageEditEngine(TryOnEngine):
         encoded = base64.b64encode(path.read_bytes()).decode("ascii")
         return f"data:{media_type};base64,{encoded}"
 
+    async def _extract_output_image_bytes(
+        self,
+        client: httpx.AsyncClient,
+        payload: dict[str, Any],
+    ) -> bytes:
+        output_reference = self._extract_output_reference(payload)
+        if output_reference.startswith(("http://", "https://")):
+            response = await client.get(output_reference)
+            response.raise_for_status()
+            return response.content
+        return base64.b64decode(
+            output_reference
+            .removeprefix("data:image/jpeg;base64,")
+            .removeprefix("data:image/png;base64,")
+            .removeprefix("data:image/webp;base64,"),
+            validate=True,
+        )
+
     @staticmethod
-    def _extract_output_image(payload: dict[str, Any]) -> str:
+    def _extract_output_reference(payload: dict[str, Any]) -> str:
         output = payload.get("output")
         candidates: list[Any] = [
             output,
             output.get("image") if isinstance(output, dict) else None,
             output.get("image_base64") if isinstance(output, dict) else None,
             output.get("output_image_base64") if isinstance(output, dict) else None,
+            output.get("url") if isinstance(output, dict) else None,
+            output.get("image_url") if isinstance(output, dict) else None,
             output.get("result") if isinstance(output, dict) else None,
             output[0] if isinstance(output, list) and output else None,
             payload.get("image_base64"),
+            payload.get("image_url"),
         ]
         for candidate in candidates:
             if isinstance(candidate, str) and candidate:
-                return candidate.removeprefix("data:image/jpeg;base64,").removeprefix(
-                    "data:image/png;base64,"
-                )
+                return candidate
             if isinstance(candidate, dict):
-                nested = candidate.get("image") or candidate.get("image_base64")
+                nested = (
+                    candidate.get("image")
+                    or candidate.get("image_base64")
+                    or candidate.get("url")
+                    or candidate.get("image_url")
+                )
                 if isinstance(nested, str) and nested:
-                    return nested.removeprefix("data:image/jpeg;base64,").removeprefix(
-                        "data:image/png;base64,"
-                    )
+                    return nested
         raise ValueError(f"RunPod Qwen response did not include an output image: {payload}")
