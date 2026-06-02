@@ -1,18 +1,16 @@
 package com.virtualtrialroom.app.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,20 +25,20 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Style
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -51,45 +49,48 @@ fun HomeRoute(
     onSavedResultsClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    BoxWithConstraints(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF181015),
-                        Color(0xFF3D1426),
-                        Color(0xFFFAF8F4)
-                    ),
-                    endY = 1250f
-                )
-            )
+            .background(Color(0xFFFAF8F4))
     ) {
-        val compact = maxHeight < 720.dp
-        val visualHeight = if (compact) 360.dp else 460.dp
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(if (compact) 14.dp else 18.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            StudioHeader(onSettingsClick = onSettingsClick)
-            EditorialHero(height = visualHeight)
-            ActionRail(
+            TopHeader(onSettingsClick = onSettingsClick)
+            HeroPanel()
+            WorkflowPanel(
                 onCaptureClick = onCaptureClick,
-                onWardrobeClick = onWardrobeClick,
-                onSavedResultsClick = onSavedResultsClick
+                onWardrobeClick = onWardrobeClick
             )
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                CompactAction(
+                    title = "Saved",
+                    subtitle = "Looks",
+                    icon = Icons.Filled.Collections,
+                    modifier = Modifier.weight(1f),
+                    onClick = onSavedResultsClick
+                )
+                CompactAction(
+                    title = "Quality",
+                    subtitle = "Ready",
+                    icon = Icons.Filled.Verified,
+                    modifier = Modifier.weight(1f),
+                    onClick = onWardrobeClick
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun StudioHeader(onSettingsClick: () -> Unit) {
+private fun TopHeader(onSettingsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -97,75 +98,87 @@ private fun StudioHeader(onSettingsClick: () -> Unit) {
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                text = "VTR",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Black
+                text = "Virtual Trial Room",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF17151A)
             )
             Text(
-                text = "AI Fashion Studio",
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.72f),
-                fontWeight = FontWeight.SemiBold
+                text = "AI-powered fashion preview",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF68606A)
             )
         }
-        FilledTonalIconButton(onClick = onSettingsClick) {
-            Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings")
+        Surface(
+            shape = CircleShape,
+            color = Color.White,
+            shadowElevation = 4.dp
+        ) {
+            IconButton(onClick = onSettingsClick) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "Settings",
+                    tint = Color(0xFF17151A)
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun EditorialHero(height: androidx.compose.ui.unit.Dp) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .clip(RoundedCornerShape(34.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFFFE3EC),
-                        Color(0xFFE6A23C),
-                        Color(0xFFC2185B),
-                        Color(0xFF241018)
+private fun HeroPanel() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFF17151A),
+        shadowElevation = 12.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            Color(0xFF17151A),
+                            Color(0xFF6B183D),
+                            Color(0xFFE6A23C)
+                        )
                     )
                 )
-            )
-            .padding(20.dp)
-    ) {
-        RunwayArch(modifier = Modifier.align(Alignment.Center))
-        FabricStack(modifier = Modifier.align(Alignment.TopEnd))
-        Surface(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .fillMaxWidth(),
-            color = Color.Black.copy(alpha = 0.30f),
-            contentColor = Color.White,
-            shape = RoundedCornerShape(28.dp)
+                .padding(22.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            Surface(
+                modifier = Modifier.align(Alignment.TopStart),
+                color = Color.White.copy(alpha = 0.14f),
+                contentColor = Color.White,
+                shape = RoundedCornerShape(100.dp)
             ) {
                 Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(imageVector = Icons.Filled.AutoAwesome, contentDescription = null)
                     Text(
-                        text = "Instant Try-On",
+                        text = "Photoreal try-on",
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                 }
+            }
+            Column(
+                modifier = Modifier.align(Alignment.BottomStart),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 Text(
-                    text = "Wear any saree before you buy",
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = "See the saree on your photo",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White,
                     fontWeight = FontWeight.Black
                 )
                 Text(
-                    text = "Studio-grade preview from your photo and garment image.",
+                    text = "Upload one full-body person photo and one garment photo.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.82f)
                 )
@@ -175,122 +188,124 @@ private fun EditorialHero(height: androidx.compose.ui.unit.Dp) {
 }
 
 @Composable
-private fun RunwayArch(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth(0.74f)
-            .aspectRatio(0.68f)
-            .clip(RoundedCornerShape(topStart = 140.dp, topEnd = 140.dp, bottomStart = 30.dp, bottomEnd = 30.dp))
-            .background(Color.White.copy(alpha = 0.18f))
-            .padding(18.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(topStart = 120.dp, topEnd = 120.dp, bottomStart = 24.dp, bottomEnd = 24.dp))
-                .background(Color.White.copy(alpha = 0.18f))
-        )
-        Icon(
-            imageVector = Icons.Filled.Style,
-            contentDescription = null,
-            modifier = Modifier.size(74.dp),
-            tint = Color.White.copy(alpha = 0.92f)
-        )
-    }
-}
-
-@Composable
-private fun FabricStack(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.width(92.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FabricStrip(Color(0xFFFFF4D6))
-        FabricStrip(Color(0xFFD6F3F1))
-        FabricStrip(Color(0xFFFFD9E6))
-    }
-}
-
-@Composable
-private fun FabricStrip(color: Color) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(42.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(color.copy(alpha = 0.86f))
-    )
-}
-
-@Composable
-private fun ActionRail(
+private fun WorkflowPanel(
     onCaptureClick: () -> Unit,
-    onWardrobeClick: () -> Unit,
-    onSavedResultsClick: () -> Unit
+    onWardrobeClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(30.dp),
-        shadowElevation = 10.dp
+        shape = RoundedCornerShape(28.dp),
+        color = Color.White,
+        shadowElevation = 6.dp
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Button(
-                onClick = onCaptureClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(62.dp),
-                shape = RoundedCornerShape(22.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Icon(imageVector = Icons.Filled.CameraAlt, contentDescription = null)
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "Start With Person Photo", fontWeight = FontWeight.Bold)
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StudioAction(
-                    text = "Garment",
-                    icon = Icons.Filled.Checkroom,
-                    modifier = Modifier.weight(1f),
-                    onClick = onWardrobeClick
-                )
-                StudioAction(
-                    text = "Looks",
-                    icon = Icons.Filled.Collections,
-                    modifier = Modifier.weight(1f),
-                    onClick = onSavedResultsClick
-                )
-            }
+            Text(
+                text = "Create your look",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF17151A)
+            )
+            WorkflowAction(
+                step = "01",
+                title = "Add person photo",
+                subtitle = "Use a clear full-body image",
+                icon = Icons.Filled.CameraAlt,
+                primary = true,
+                onClick = onCaptureClick
+            )
+            WorkflowAction(
+                step = "02",
+                title = "Add garment photo",
+                subtitle = "Upload saree, dress, top, or outfit",
+                icon = Icons.Filled.Checkroom,
+                primary = false,
+                onClick = onWardrobeClick
+            )
         }
     }
 }
 
 @Composable
-private fun StudioAction(
-    text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+private fun WorkflowAction(
+    step: String,
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    primary: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(76.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (primary) MaterialTheme.colorScheme.primary else Color(0xFFF4EFE9),
+            contentColor = if (primary) Color.White else Color(0xFF17151A)
+        ),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp)
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = if (primary) Color.White.copy(alpha = 0.18f) else Color.White
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                text = step,
+                fontWeight = FontWeight.Black
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Icon(imageVector = icon, contentDescription = null)
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(text = title, fontWeight = FontWeight.Black)
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (primary) Color.White.copy(alpha = 0.78f) else Color(0xFF68606A)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CompactAction(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier.height(58.dp),
+        modifier = modifier.height(104.dp),
         onClick = onClick,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White,
+        border = BorderStroke(1.dp, Color(0xFFE8DED4)),
+        shadowElevation = 3.dp
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(imageVector = icon, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, fontWeight = FontWeight.Bold)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Column {
+                Text(text = title, fontWeight = FontWeight.Black, color = Color(0xFF17151A))
+                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = Color(0xFF68606A))
+            }
         }
     }
 }

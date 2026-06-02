@@ -2,11 +2,11 @@ package com.virtualtrialroom.app.ui.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +43,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -78,254 +77,218 @@ fun WardrobeRoute(
         }
     }
 
-    BoxWithConstraints(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF201017),
-                        Color(0xFF5A1833),
-                        Color(0xFFFAF8F4)
-                    ),
-                    endY = 1150f
-                )
-            )
+            .background(Color(0xFFFAF8F4))
+            .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        val compact = maxHeight < 720.dp
-        val uploadHeight = if (compact) 300.dp else 390.dp
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            GarmentHeader(onBackClick = onBackClick)
-            GarmentCanvas(
-                height = uploadHeight,
-                enabled = !uiState.isLoading,
-                onClick = { garmentPicker.launch("image/*") }
-            )
-            if (uiState.isLoading) {
-                LoadingState(message = uiState.statusMessage ?: "Importing garment image.")
-            }
-            if (uiState.errorMessage != null) {
-                ErrorState(
-                    error = AppError.Validation(uiState.errorMessage ?: "Unable to import garment image."),
-                    onRetryClick = { garmentPicker.launch("image/*") }
-                )
-            }
-            CategoryDock(onClothingSelected = onClothingSelected)
+        GarmentTopBar(onBackClick = onBackClick)
+        UploadCard(
+            enabled = !uiState.isLoading,
+            onClick = { garmentPicker.launch("image/*") }
+        )
+        if (uiState.isLoading) {
+            LoadingState(message = uiState.statusMessage ?: "Importing garment image.")
         }
+        if (uiState.errorMessage != null) {
+            ErrorState(
+                error = AppError.Validation(uiState.errorMessage ?: "Unable to import garment image."),
+                onRetryClick = { garmentPicker.launch("image/*") }
+            )
+        }
+        TipsCard()
+        CategorySection(onClothingSelected = onClothingSelected)
     }
 }
 
 @Composable
-private fun GarmentHeader(onBackClick: () -> Unit) {
+private fun GarmentTopBar(onBackClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier
-                .size(48.dp)
-                .background(Color.White.copy(alpha = 0.16f), CircleShape)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White
-            )
+        Surface(shape = CircleShape, color = Color.White, shadowElevation = 4.dp) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFF17151A)
+                )
+            }
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "Garment Studio",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Black
+                text = "Garment",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF17151A)
             )
             Text(
-                text = "Saree, dress, tops",
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.72f),
-                fontWeight = FontWeight.SemiBold
+                text = "Upload clothing reference",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF68606A)
             )
         }
     }
 }
 
 @Composable
-private fun GarmentCanvas(
-    height: androidx.compose.ui.unit.Dp,
+private fun UploadCard(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(36.dp),
-        shadowElevation = 12.dp
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(32.dp),
+        color = Color.White,
+        shadowElevation = 10.dp
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFFFF8EF),
-                            Color(0xFFFFD9E6),
-                            Color(0xFFD6F3F1)
-                        )
-                    )
-                )
-                .padding(18.dp)
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            GarmentPreviewShape(modifier = Modifier.align(Alignment.Center))
-            Column(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(270.dp)
+                    .background(
+                        brush = Brush.linearGradient(
+                            listOf(
+                                Color(0xFFFFF8EF),
+                                Color(0xFFFFD9E6),
+                                Color(0xFFD6F3F1)
+                            )
+                        ),
+                        shape = RoundedCornerShape(26.dp)
+                    )
+                    .padding(18.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Surface(
-                    color = Color.Black.copy(alpha = 0.08f),
-                    shape = RoundedCornerShape(100.dp)
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.74f),
+                    shadowElevation = 4.dp
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.CloudUpload,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Upload garment image",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .padding(32.dp)
+                            .size(58.dp),
+                        imageVector = Icons.Filled.CloudUpload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-                Button(
-                    onClick = onClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp),
-                    enabled = enabled,
-                    shape = RoundedCornerShape(22.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(imageVector = Icons.Filled.PhotoLibrary, contentDescription = null)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "Choose From Gallery", fontWeight = FontWeight.Bold)
-                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = "Choose saree or outfit image",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF17151A)
+                )
+                Text(
+                    text = "Use the exact garment photo you want the person to wear.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF68606A)
+                )
+            }
+            Button(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(62.dp),
+                shape = RoundedCornerShape(22.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(imageVector = Icons.Filled.PhotoLibrary, contentDescription = null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Upload From Gallery", fontWeight = FontWeight.Black)
             }
         }
     }
 }
 
 @Composable
-private fun GarmentPreviewShape(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth(0.70f)
-            .height(190.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth(0.58f)
-                .height(74.dp)
-                .clip(RoundedCornerShape(topStart = 80.dp, topEnd = 80.dp, bottomStart = 12.dp, bottomEnd = 12.dp))
-                .background(Color(0xFFC2185B).copy(alpha = 0.88f))
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(150.dp)
-                .clip(RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp, bottomStart = 20.dp, bottomEnd = 20.dp))
-                .background(Color(0xFF8A123F).copy(alpha = 0.82f))
-        )
-        Icon(
-            imageVector = Icons.Filled.Style,
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(54.dp),
-            tint = Color.White.copy(alpha = 0.76f)
-        )
-    }
-}
-
-@Composable
-private fun CategoryDock(onClothingSelected: (String) -> Unit) {
+private fun TipsCard() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(28.dp),
-        shadowElevation = 8.dp
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White,
+        border = BorderStroke(1.dp, Color(0xFFE8DED4))
     ) {
-        Column(
+        Row(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(imageVector = Icons.Filled.Checkroom, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
+                Icon(
+                    modifier = Modifier.padding(10.dp),
+                    imageVector = Icons.Filled.Checkroom,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "Quick categories",
+                    text = "For best output",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black
                 )
-            }
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                GarmentChip(text = "Sarees", onClick = { onClothingSelected("sarees") })
-                GarmentChip(text = "Dresses", onClick = { onClothingSelected("dresses") })
-                GarmentChip(text = "Tops", onClick = { onClothingSelected("tops") })
-                GarmentChip(text = "Outerwear", onClick = { onClothingSelected("outerwear") })
+                Text(
+                    text = "Front-facing garment, good lighting, minimal background.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF68606A)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun GarmentChip(
+private fun CategorySection(onClothingSelected: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = "Quick category",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF17151A)
+        )
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            CategoryChip(text = "Sarees", onClick = { onClothingSelected("sarees") })
+            CategoryChip(text = "Dresses", onClick = { onClothingSelected("dresses") })
+            CategoryChip(text = "Tops", onClick = { onClothingSelected("tops") })
+            CategoryChip(text = "Outerwear", onClick = { onClothingSelected("outerwear") })
+        }
+    }
+}
+
+@Composable
+private fun CategoryChip(
     text: String,
     onClick: () -> Unit
 ) {
     FilterChip(
         selected = false,
         onClick = onClick,
-        label = {
-            Text(text = text, fontWeight = FontWeight.Bold)
-        },
+        label = { Text(text = text, fontWeight = FontWeight.Bold) },
         leadingIcon = {
             Icon(imageVector = Icons.Filled.Style, contentDescription = null)
         },
         colors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            labelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerColor = Color.White,
+            labelColor = Color(0xFF17151A),
             iconColor = MaterialTheme.colorScheme.primary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
-            selected = false,
-            borderColor = Color.Transparent
         )
     )
 }
