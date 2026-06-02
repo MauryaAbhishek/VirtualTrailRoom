@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,11 +52,14 @@ fun AppScaffold(
             )
         }
     ) { innerPadding ->
+        val scrollState = rememberScrollState()
         androidx.compose.foundation.layout.Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
+                .verticalScroll(scrollState)
+                .navigationBarsPadding()
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             content = { content(innerPadding) }
         )
