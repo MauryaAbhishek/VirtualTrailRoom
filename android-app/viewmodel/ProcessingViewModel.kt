@@ -60,7 +60,7 @@ class ProcessingViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     statusMessage = null,
-                                    errorMessage = job.errorMessage ?: "Try-on generation failed."
+                                    errorMessage = job.errorMessage.toUserFacingAiError()
                                 )
                             }
                             return@launch
@@ -96,3 +96,28 @@ class ProcessingViewModel @Inject constructor(
         const val POLL_INTERVAL_MS = 1_000L
     }
 }
+
+private fun String?.toUserFacingAiError(): String {
+    val rawMessage = this?.trim().orEmpty()
+    if (rawMessage.isBlank()) {
+        return "Try-on generation failed. Please retry."
+    }
+    val normalized = rawMessage.lowercase()
+    return when {
+        "402" in normalized || "payment required" in normalized -> {
+            "AI generation credits are not available. Add credits or switch the backend AI provider, then retry."
+        }
+        "runpod" in normalized && ("credit" in normalized || "billing" in normalized) -> {
+            "RunPod billing is not ready. Add RunPod credits or switch to the FASHN provider, then retry."
+        }
+        "api.runpod.ai" in normalized -> {
+            "The AI provider is unavailable right now. Please check backend provider settings and retry."
+        }
+        "timeout" in normalized || "timed out" in normalized -> {
+            "AI generation is taking too long. Please retry with a clearer person and garment image."
+        }
+        else -> rawMessage.take(MAX_ERROR_LENGTH)
+    }
+}
+
+private const val MAX_ERROR_LENGTH = 160
